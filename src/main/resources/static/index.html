@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Performance Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <h2>⚡ EPMS</h2>
+
+        <!-- Role Switcher -->
+        <div class="role-switcher-container">
+            <div class="role-switcher">
+                <button type="button" id="roleManagerBtn" class="role-btn active" onclick="switchRole('manager')">👔 Manager</button>
+                <button type="button" id="roleEmployeeBtn" class="role-btn" onclick="switchRole('employee')">👤 Employee</button>
+            </div>
+            <div id="activeEmployeeSelectorBox" class="active-emp-box" style="display: none;">
+                <label for="currentEmployeeSelect">Viewing As:</label>
+                <select id="currentEmployeeSelect" class="emp-selector" onchange="changeActiveEmployee(this.value)">
+                    <option value="">Select Employee...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Manager Navigation -->
+        <nav id="managerNav">
+            <a href="#" class="nav-link active" data-section="dashboard">📊 Dashboard</a>
+            <a href="#" class="nav-link" data-section="employees">👥 Employees</a>
+            <a href="#" class="nav-link" data-section="tasks">✅ All Tasks</a>
+            <a href="#" class="nav-link" data-section="reviews">⭐ Performance Reviews</a>
+            <a href="#" class="nav-link" data-section="leaderboard">🏆 Leaderboard</a>
+        </nav>
+
+        <!-- Employee Navigation -->
+        <nav id="employeeNav" style="display: none;">
+            <a href="#" class="nav-link active" data-section="emp-dashboard">📈 My Overview</a>
+            <a href="#" class="nav-link" data-section="emp-tasks">📋 My Tasks</a>
+            <a href="#" class="nav-link" data-section="emp-reviews">⭐ My Reviews</a>
+            <a href="#" class="nav-link" data-section="leaderboard">🏆 Company Leaderboard</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Global Notification Banner -->
+        <div id="alertBanner" class="alert-banner"></div>
+
+        <!-- Dynamic Header -->
+        <header>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSubtitle">Employee Performance Management System</p>
+        </header>
+
+        <!-- ================= MANAGER SECTIONS ================= -->
+
+        <!-- SECTION 1: MANAGER DASHBOARD -->
+        <section id="section-dashboard" class="content-section active">
+            <!-- Stats Cards -->
+            <div class="cards">
+                <div class="card">
+                    <h3>Total Employees</h3>
+                    <p id="totalEmployees">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Tasks</h3>
+                    <p id="totalTasks">0</p>
+                </div>
+                <div class="card">
+                    <h3>Completed Tasks</h3>
+                    <p id="completedTasks">0</p>
+                </div>
+                <div class="card">
+                    <h3>Average Performance</h3>
+                    <p id="averagePerformance">0%</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Overview Panels -->
+            <div class="dashboard-panels">
+                <!-- Top Performers Preview -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>🏆 Top Performers</h3>
+                        <a href="#" class="panel-link" data-switch="leaderboard">View All</a>
+                    </div>
+                    <div id="dashboardTopPerformers" class="panel-body">
+                        <p class="loading-state">Loading top performers...</p>
+                    </div>
+                </div>
+
+                <!-- Recent Tasks Preview -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>✅ Recent Tasks</h3>
+                        <a href="#" class="panel-link" data-switch="tasks">View All</a>
+                    </div>
+                    <div id="dashboardRecentTasks" class="panel-body">
+                        <p class="loading-state">Loading recent tasks...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: MANAGER EMPLOYEES DIRECTORY -->
+        <section id="section-employees" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Employee Directory</h2>
+                        <p class="section-subtitle">Manage company staff and departmental roles</p>
+                    </div>
+                    <div class="header-actions">
+                        <input type="text" id="employeeSearchInput" placeholder="🔍 Search employee..." class="search-input">
+                        <button id="addEmployeeBtn" class="btn-primary">+ Add Employee</button>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <tr>
+                            <td colspan="6" class="loading-state">Loading employees...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 3: MANAGER ALL TASKS -->
+        <section id="section-tasks" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Task Management</h2>
+                        <p class="section-subtitle">Track, assign, and update employee workflows</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="filter-group">
+                            <button class="filter-btn active" data-filter="All">All</button>
+                            <button class="filter-btn" data-filter="Pending">Pending</button>
+                            <button class="filter-btn" data-filter="In Progress">In Progress</button>
+                            <button class="filter-btn" data-filter="Completed">Completed</button>
+                        </div>
+                        <button id="addTaskBtn" class="btn-primary">+ Add Task</button>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Task Title</th>
+                            <th>Assigned To</th>
+                            <th>Priority</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskTableBody">
+                        <tr>
+                            <td colspan="7" class="loading-state">Loading tasks...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 4: MANAGER PERFORMANCE REVIEWS -->
+        <section id="section-reviews" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Performance Reviews</h2>
+                        <p class="section-subtitle">Formal evaluations, ratings, and feedback</p>
+                    </div>
+                    <button id="addReviewBtn" class="btn-primary">+ New Review</button>
+                </div>
+
+                <div id="reviewsGrid" class="reviews-grid">
+                    <p class="loading-state">Loading performance reviews...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EMPLOYEE SECTIONS ================= -->
+
+        <!-- SECTION 5: EMPLOYEE PERSONAL DASHBOARD -->
+        <section id="section-emp-dashboard" class="content-section">
+            <!-- Profile Banner -->
+            <div class="emp-profile-banner">
+                <div class="emp-profile-info">
+                    <h2 id="empProfileName">Employee Name</h2>
+                    <p id="empProfileDetails">Department &bull; Designation &bull; email@example.com</p>
+                </div>
+                <div id="empProfileTierBadge" class="emp-profile-badge">
+                    🌟 Top Performer
+                </div>
+            </div>
+
+            <!-- Personal KPI Cards -->
+            <div class="cards">
+                <div class="card">
+                    <h3>Assigned Tasks</h3>
+                    <p id="empStatTotalTasks">0</p>
+                </div>
+                <div class="card">
+                    <h3>Completed Tasks</h3>
+                    <p id="empStatCompletedTasks">0</p>
+                </div>
+                <div class="card">
+                    <h3>Task Completion Rate</h3>
+                    <p id="empStatCompletionRate">0%</p>
+                </div>
+                <div class="card">
+                    <h3>Performance Score</h3>
+                    <p id="empStatPerformanceScore">0%</p>
+                </div>
+            </div>
+
+            <!-- Employee Quick Panels -->
+            <div class="dashboard-panels">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>📋 Tasks Needing Attention</h3>
+                        <a href="#" class="panel-link" data-switch="emp-tasks">View All My Tasks</a>
+                    </div>
+                    <div id="empDashboardTasks" class="panel-body">
+                        <p class="loading-state">Loading tasks...</p>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>⭐ Latest Manager Review</h3>
+                        <a href="#" class="panel-link" data-switch="emp-reviews">View All Reviews</a>
+                    </div>
+                    <div id="empDashboardReview" class="panel-body">
+                        <p class="loading-state">Loading review details...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: EMPLOYEE PERSONAL TASKS -->
+        <section id="section-emp-tasks" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>My Assigned Tasks</h2>
+                        <p class="section-subtitle">Manage and update your active work items in real time</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="filter-group">
+                            <button class="filter-btn active" data-emp-filter="All">All</button>
+                            <button class="filter-btn" data-emp-filter="Pending">Pending</button>
+                            <button class="filter-btn" data-emp-filter="In Progress">In Progress</button>
+                            <button class="filter-btn" data-emp-filter="Completed">Completed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Task Title</th>
+                            <th>Priority</th>
+                            <th>Due Date</th>
+                            <th>Current Status</th>
+                            <th>Update Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody id="empTaskTableBody">
+                        <tr>
+                            <td colspan="6" class="loading-state">Loading your tasks...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 7: EMPLOYEE PERSONAL REVIEWS -->
+        <section id="section-emp-reviews" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>My Performance Evaluations</h2>
+                        <p class="section-subtitle">Formal evaluations and qualitative feedback from leadership</p>
+                    </div>
+                </div>
+
+                <div id="empReviewsGrid" class="reviews-grid">
+                    <p class="loading-state">Loading your reviews...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SHARED SECTION: LEADERBOARD ================= -->
+        <section id="section-leaderboard" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Company Leaderboard</h2>
+                        <p class="section-subtitle">Ranked by Composite Performance Score (50% Task Execution + 50% Manager Reviews)</p>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Completed Tasks</th>
+                            <th>Overall Score</th>
+                            <th>Standing</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody">
+                        <tr>
+                            <td colspan="6" class="loading-state">Calculating rankings...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- 1. Employee Modal (Add / Edit) -->
+<div id="employeeModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2 id="employeeModalTitle">Add Employee</h2>
+        <form id="employeeForm">
+            <input type="hidden" id="employeeId">
+
+            <div class="form-group">
+                <label for="employeeName">Full Name</label>
+                <input type="text" id="employeeName" required placeholder="e.g. John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="employeeDept">Department</label>
+                <input type="text" id="employeeDept" required placeholder="e.g. Engineering">
+            </div>
+
+            <div class="form-group">
+                <label for="employeeEmail">Email Address</label>
+                <input type="email" id="employeeEmail" required placeholder="e.g. john.doe@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="employeeDesig">Designation</label>
+                <input type="text" id="employeeDesig" required placeholder="e.g. Software Engineer">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAllModals()">Cancel</button>
+                <button type="submit" class="btn-primary">Save Employee</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2. Task Modal -->
+<div id="taskModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>Create New Task</h2>
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="taskTitle">Task Title</label>
+                <input type="text" id="taskTitle" required placeholder="e.g. Migrate database to cloud">
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Description</label>
+                <input type="text" id="taskDesc" placeholder="Brief description of the task...">
+            </div>
+
+            <div class="form-group">
+                <label for="taskEmployeeSelect">Assign To Employee</label>
+                <select id="taskEmployeeSelect" required class="form-select">
+                    <option value="">Select Employee...</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" class="form-select">
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskStatus">Status</label>
+                    <select id="taskStatus" class="form-select">
+                        <option value="Pending" selected>Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="taskDueDate">Due Date</label>
+                <input type="date" id="taskDueDate" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAllModals()">Cancel</button>
+                <button type="submit" class="btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. Performance Review Modal -->
+<div id="reviewModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2>Submit Performance Review</h2>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label for="reviewEmployeeSelect">Employee</label>
+                <select id="reviewEmployeeSelect" required class="form-select">
+                    <option value="">Select Employee...</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reviewScore">Performance Score (0 - 100%)</label>
+                    <input type="number" id="reviewScore" min="0" max="100" required placeholder="e.g. 92">
+                </div>
+
+                <div class="form-group">
+                    <label for="reviewRating">Rating (1 to 5 Stars)</label>
+                    <select id="reviewRating" class="form-select">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 - Exceptional)</option>
+                        <option value="4" selected>⭐⭐⭐⭐ (4 - Exceeds Expectations)</option>
+                        <option value="3">⭐⭐⭐ (3 - Meets Expectations)</option>
+                        <option value="2">⭐⭐ (2 - Needs Improvement)</option>
+                        <option value="1">⭐ (1 - Unsatisfactory)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reviewFeedback">Evaluation Feedback</label>
+                <textarea id="reviewFeedback" rows="3" class="form-textarea" required placeholder="Summary of accomplishments and areas for growth..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="reviewerName">Reviewer Name & Role</label>
+                <input type="text" id="reviewerName" required placeholder="e.g. Jane Doe (Director)">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAllModals()">Cancel</button>
+                <button type="submit" class="btn-primary">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
